@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">KisanHubTest</string>
+    <string name="waitMsg">Please wait while we make the app ready for you.</string>
 </resources>

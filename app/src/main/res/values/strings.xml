@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">KisanHubTest</string>
     <string name="waitMsg">Please wait while we make the app ready for you.</string>
+    <string name="accessToken">pk.eyJ1IjoibWl6YXJkYXIiLCJhIjoiY2plbWpxMnEzMjQ4dDMxbXBld3QyNWp1biJ9.VFt4qY6x6VLyevUvG2FwdA</string>
 </resources>

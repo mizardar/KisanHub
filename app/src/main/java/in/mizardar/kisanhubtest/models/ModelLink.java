@@ -1,4 +1,4 @@
-package in.mizardar.kisanhubtest;
+package in.mizardar.kisanhubtest.models;
 
 /**
  * Created by mizardar on 08/03/18.

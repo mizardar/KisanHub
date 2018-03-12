@@ -1,6 +1,5 @@
-package in.mizardar.kisanhubtest;
+package in.mizardar.kisanhubtest.Activities;
 
-import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -16,41 +15,35 @@ import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Scanner;
 
-import static in.mizardar.kisanhubtest.StaticDataList.COUNTRY_LIST;
-import static in.mizardar.kisanhubtest.StaticDataList.DATA_URL;
-import static in.mizardar.kisanhubtest.StaticDataList.VALUE_LIST;
-import static in.mizardar.kisanhubtest.StaticDataList.hasCountryName;
-import static in.mizardar.kisanhubtest.StaticDataList.hasValName;
+import in.mizardar.kisanhubtest.DatabaseHandler;
+import in.mizardar.kisanhubtest.R;
+import in.mizardar.kisanhubtest.Utils.ConnectionDetector;
+import in.mizardar.kisanhubtest.models.ModelCat;
+import in.mizardar.kisanhubtest.models.ModelLink;
+import in.mizardar.kisanhubtest.models.ModelRegion;
+import in.mizardar.kisanhubtest.models.ModelValues;
 
-public class WelcomeActivity extends AppCompatActivity {
+import static in.mizardar.kisanhubtest.Utils.StaticDataList.COUNTRY_LIST;
+import static in.mizardar.kisanhubtest.Utils.StaticDataList.DATA_URL;
+import static in.mizardar.kisanhubtest.Utils.StaticDataList.VALUE_LIST;
+import static in.mizardar.kisanhubtest.Utils.StaticDataList.hasCountryName;
+import static in.mizardar.kisanhubtest.Utils.StaticDataList.hasValName;
+
+public class InitializeActivity extends AppCompatActivity {
 
     DownloadManager downloadManager;
+    DatabaseHandler db;
     private HashMap<String, ModelLink> modelLinkHashMap = new HashMap<>();
     private ArrayList<Long> refIdList = new ArrayList<>();
     BroadcastReceiver onComplete = new BroadcastReceiver() {
@@ -84,7 +77,7 @@ public class WelcomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_welcome);
+        setContentView(R.layout.activity_initialize);
 
         ContextWrapper wrapper = new ContextWrapper(this);
 
@@ -97,6 +90,22 @@ public class WelcomeActivity extends AppCompatActivity {
         downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
 
         registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
+        db = new DatabaseHandler(this);
+        try {
+
+            db.insertRegion();
+            db.insertCategory();
+
+            int len1 = db.getRegionCount();
+//            int len2 = db.getCategoryCount();
+            Log.e("DataBase", "created");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Log.e("DataBase", "created");
+
+
     }
 
     @Override
@@ -126,39 +135,26 @@ public class WelcomeActivity extends AppCompatActivity {
 
     }
 
-    @SuppressLint("Assert")
-    private void removeLine(final File file) throws IOException {
-        for (int lineIndex = 0; lineIndex <= 7; lineIndex++) {
-            final List<String> lines = new LinkedList<>();
-            final Scanner reader = new Scanner(new FileInputStream(file), "UTF-8");
-            while (reader.hasNextLine())
-                lines.add(reader.nextLine());
-            reader.close();
-            assert lineIndex >= 0 && lineIndex <= lines.size() - 1;
-            lines.remove(lineIndex);
-            final BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
-            for (final String line : lines)
-                writer.write(line);
-            writer.flush();
-            writer.close();
-        }
-    }
-
     private void parseDocument() {
 
+        ArrayList<ModelRegion> modelRegionArrayList = new ArrayList<>();
+
+
         for (String countryName : COUNTRY_LIST) {
+            ArrayList<ModelCat> modelCatArrayList = new ArrayList<>();
             for (String valueName : VALUE_LIST) {
 
                 ModelLink modelLink = modelLinkHashMap.get(countryName + " " + valueName);
+                ArrayList<ModelValues> modelValuesArrayList = new ArrayList<>();
 
 
                 File myFile = new File(Environment.getExternalStorageDirectory() + "/myfiles", "/metoffice/" + modelLink.get_title() + ".txt");
 
-                try {
-                    removeLine(myFile);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    removeLine(myFile);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
 
                 if (myFile.exists()) {
 
@@ -168,112 +164,136 @@ public class WelcomeActivity extends AppCompatActivity {
                         BufferedReader bufRead = new BufferedReader(input);
                         String myLine = null;
                         int lineNo = 0;
+
                         while ((myLine = bufRead.readLine()) != null) {
 
                             lineNo++;
+                            if (lineNo == 8) {
+                                //TODO save the column names
+                            }
                             if (lineNo > 8) {
                                 Log.e("parseDocument", "lineNo:" + lineNo + ": " + myLine);
 
-                                String[] line = myLine.split("\\s\\s\\s");
-                                Log.d("parseDocument", ": splitted");
-                                //readIt(myLine);
+                                ArrayList<String> data = parse(myLine);
+                                double[] values = new double[17];
+                                int year = Integer.parseInt(data.get(0).trim());
+
+                                for (int valueLoop = 1; valueLoop <= 17; valueLoop++) {
+                                    if (data.size() <= valueLoop) {
+                                        values[valueLoop - 1] = 0.0;
+                                    } else {
+                                        if (data.get(valueLoop).contains("--") || data.get(valueLoop).equalsIgnoreCase("NA")) {
+                                            values[valueLoop - 1] = 0.0;
+                                        } else {
+                                            values[valueLoop - 1] = Double.parseDouble(data.get(valueLoop).trim());
+                                        }
+
+                                    }
+                                }
+                                modelValuesArrayList.add(new ModelValues(year, values));
                             }
 
+
                         }
+
 
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
+                int catID = db.getCategoryID(valueName);
+                modelCatArrayList.add(new ModelCat(valueName, catID, modelValuesArrayList));
+
             }
+            int regionID = db.getRegionID(countryName);
+            modelRegionArrayList.add(new ModelRegion(countryName, regionID, modelCatArrayList));
         }
+
+        db.insertValues(modelRegionArrayList);
 
         Log.e("parseDocument", "Completed");
     }
 
-//    public static void main(String[] args) {
-//        try {
-//
-//            final Path path = Paths.get("path", "to", "folder");
-//            final Path txt = path.resolve("myFile.txt");
-//            final Path csv = path.resolve("myFile.csv");
-//            try (
-//                    final Stream<String> lines = Files.lines(txt);
-//                    final PrintWriter pw = new PrintWriter(Files.newBufferedWriter(csv, StandardOpenOption.CREATE_NEW))) {
-//                lines.map((line) -> line.split("\\|")).
-//                        map((line) -> Stream.of(line).collect(Collectors.joining(","))).
-//                        forEach(pw::println);
-//            }
-//
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-//
-//    }
+    private ArrayList<String> parse(String line) {
 
-    public static class convertExcel {
+        ArrayList<String> data = new ArrayList<>();
 
-        public void convertToExcel() {
+        int location = 0;
 
+        int spaceCount = 0;
 
-            try {
-                Properties prop = new Properties();
-                prop.load(new FileInputStream("overlay.properties"));
-                String fileName = prop.getProperty("SendMail.File.Attachment");
-                String inputFile = prop.getProperty("Excel.File.Input");
-                Log.e("Converting FILE  :", inputFile);
-                BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-                String[] dataArray = null;
-                String delimiter = "\\|";
-                String text = null;
+        StringBuilder str = new StringBuilder("My Array:: ");
+        try {
 
-                HSSFWorkbook workbook = new HSSFWorkbook();
-                HSSFSheet sheet = workbook.createSheet("overlayReport");
-                Map<Integer, String[]> data = new HashMap<Integer, String[]>();
+            int len = line.length();
 
-                data.put(1, new String[]{"MASTERMEMRECNO", "MINONMFIRST", "MAXONMFIRST", "MINONMLAST", "MAXONMLAST", "MINSSN", "MAXSSN", "MINDOB",
-                        "MAXDOB", "JWFN", "JWLN", "JWMINREV", "JWMAXREV", "JWSSN", "JWDOB", "JWAVG", "DATE_CREATED"});
-                int i = 2;
-                while ((text = reader.readLine()) != null) {
-                    dataArray = text.split(delimiter);
+            while (location < line.length()) {
+                char character = line.charAt(location);
 
-                    data.put(i, new String[]{dataArray[0].trim(), dataArray[1].trim(), dataArray[2].trim(), dataArray[3].trim(),
-                            dataArray[4].trim(), dataArray[5].trim(), dataArray[6].trim(), dataArray[7].trim(),
-                            dataArray[8].trim(), dataArray[9].trim(), dataArray[10].trim(),
-                            dataArray[11].trim(), dataArray[12].trim(), dataArray[13].trim(),
-                            dataArray[14].trim(), dataArray[15].trim(), dataArray[16].trim()});
-                    i++;
+                if (character == ' ') {
+                    spaceCount++;
+                    if (spaceCount < 5) {
+                        location++;
+                    } else {
+                        line = line.substring(0, location) + "---" + line.substring(location + 3, len);
 
-                }
-
-
-                int rownum = 0;
-                for (int k = 1; k < i; k++) {
-                    Row row = sheet.createRow(rownum++);
-                    String[] strArr = data.get(k);
-                    int cellnum = 0;
-                    for (Object obj : strArr) {
-                        Cell cell = row.createCell(cellnum++);
-                        cell.setCellValue((String) obj);
+                        location = location + 3;
+                        spaceCount = 0;
                     }
+
+                } else {
+                    spaceCount = 0;
+                    location++;
                 }
-
-
-                FileOutputStream out =
-                        new FileOutputStream(new File(fileName));
-                workbook.write(out);
-                out.close();
-                Log.e("excel", "Data is written to Excel file successfully");
-
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+            location = 0;
+//            spaceCount = 0;
+            while (location < line.length()) {
+                char character = line.charAt(location);
+
+                if (character == ' ') {
+                    location++;
+
+                } else {
+//                    spaceCount = 0;
+                    StringBuilder val = new StringBuilder();
+                    do {
+                        if (location < line.length()) {
+                            character = line.charAt(location);
+                            val.append(character);
+                            location++;
+                        }
+                    } while (character != ' ' && location < line.length());
+                    if (val.toString().contains("--"))
+                        data.add("NA");
+                    else
+                        data.add(val.toString());
+                    if (location == 1) {
+                        Log.e("last", "string");
+                    }
+
+                    str.append(val.toString()).append("**");
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        Log.e("final array", str.toString());
+
+//        if (data.get(0).contains("2018")){
+//            Log.e("time","pass");
+//        }
+
+
+        return data;
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        startActivity(new Intent(InitializeActivity.this, SelectionActivity.class));
+        finish();
 
     }
 
@@ -335,5 +355,4 @@ public class WelcomeActivity extends AppCompatActivity {
             return null;
         }
     }
-
 }

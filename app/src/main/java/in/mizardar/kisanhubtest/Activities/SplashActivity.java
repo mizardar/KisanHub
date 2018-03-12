@@ -1,4 +1,4 @@
-package in.mizardar.kisanhubtest;
+package in.mizardar.kisanhubtest.Activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
+
+import in.mizardar.kisanhubtest.R;
 
 public class SplashActivity extends AppCompatActivity {
 

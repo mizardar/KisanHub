@@ -1,4 +1,4 @@
-package in.mizardar.kisanhubtest;
+package in.mizardar.kisanhubtest.Utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

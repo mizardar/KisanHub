@@ -1,4 +1,4 @@
-package in.mizardar.kisanhubtest;
+package in.mizardar.kisanhubtest.Utils;
 
 /**
  * Created by mizardar on 08/03/18.
@@ -6,9 +6,9 @@ package in.mizardar.kisanhubtest;
 
 public class StaticDataList {
 
-    static final String DATA_URL = "https://www.metoffice.gov.uk/climate/uk/summaries/datasets#yearOrdered";
-    static final String[] COUNTRY_LIST = new String[]{"UK","England","Wales","Scotland"};
-    static final String[] VALUE_LIST = new String[]{"Date Tmax","Date Tmin","Date Tmean","Date Sunshine","Date Rainfall"};
+    public static final String DATA_URL = "https://www.metoffice.gov.uk/climate/uk/summaries/datasets#yearOrdered";
+    public static final String[] COUNTRY_LIST = new String[]{"UK","England","Wales","Scotland"};
+    public static final String[] VALUE_LIST = new String[]{"Date Tmax","Date Tmin","Date Tmean","Date Sunshine","Date Rainfall"};
 
     public static boolean hasCountryName(String title) {
         return title.contains("UK") || title.contains("England") || title.contains("Wales") || title.contains("Scotland");

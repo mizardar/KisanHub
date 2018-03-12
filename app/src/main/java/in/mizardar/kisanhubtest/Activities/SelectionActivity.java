@@ -1,4 +1,4 @@
-package in.mizardar.kisanhubtest;
+package in.mizardar.kisanhubtest.Activities;
 
 import android.Manifest;
 import android.content.Intent;
@@ -10,6 +10,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.util.Log;
 import android.view.View;
+
+import in.mizardar.kisanhubtest.R;
 
 public class SelectionActivity extends AppCompatActivity {
 
@@ -41,7 +43,7 @@ public class SelectionActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (isAccess(102)) {
-                    startActivity(new Intent(SelectionActivity.this, WelcomeActivity.class));
+                    startActivity(new Intent(SelectionActivity.this, InitializeActivity.class));
                     finish();
                 } else {
                     ActivityCompat.requestPermissions(SelectionActivity.this,
@@ -51,6 +53,7 @@ public class SelectionActivity extends AppCompatActivity {
             }
         });
 
+        metaofficeData.performClick();
     }
 
     public boolean isAccess(int reqID) {
@@ -101,7 +104,7 @@ public class SelectionActivity extends AppCompatActivity {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED
                         ) {
-                    startActivity(new Intent(SelectionActivity.this, WelcomeActivity.class));
+                    startActivity(new Intent(SelectionActivity.this, InitializeActivity.class));
                     finish();
                 }
                 return;

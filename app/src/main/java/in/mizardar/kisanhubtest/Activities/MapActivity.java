@@ -1,4 +1,4 @@
-package in.mizardar.kisanhubtest;
+package in.mizardar.kisanhubtest.Activities;
 
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import in.mizardar.kisanhubtest.R;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 

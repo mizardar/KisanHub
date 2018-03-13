@@ -228,6 +228,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return ID;
     }
 
+
     public void insertValues(ArrayList<ModelRegion> modelRegionArrayList) {
 
         SQLiteDatabase dataBase = this.getWritableDatabase();

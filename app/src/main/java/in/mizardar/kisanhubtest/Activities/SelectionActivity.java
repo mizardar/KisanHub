@@ -1,18 +1,21 @@
 package in.mizardar.kisanhubtest.Activities;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.util.Log;
 import android.view.View;
 
-import in.mizardar.kisanhubtest.DatabaseHandler;
 import in.mizardar.kisanhubtest.R;
+import in.mizardar.kisanhubtest.Utils.ConnectionDetector;
+import in.mizardar.kisanhubtest.Utils.DatabaseHandler;
 
 public class SelectionActivity extends AppCompatActivity {
 
@@ -27,14 +30,29 @@ public class SelectionActivity extends AppCompatActivity {
 
         AppCompatButton mapActivity = (AppCompatButton) findViewById(R.id.mapActivity);
         AppCompatButton metaofficeData = (AppCompatButton) findViewById(R.id.metaofficeData);
+        AppCompatButton myProfile = (AppCompatButton) findViewById(R.id.myProfile);
 
         mapActivity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (isAccess(101)) {
 
-                    startActivity(new Intent(SelectionActivity.this, MapActivity.class));
-                    finish();
+                    if (ConnectionDetector.isConnectingToInternet(SelectionActivity.this)) {
+                        startActivity(new Intent(SelectionActivity.this, MapActivity.class));
+                    } else {
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(SelectionActivity.this);
+                        builder.setMessage("Please connect to internet");
+                        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        });
+                        builder.show();
+
+                    }
+
                 } else {
 
                     ActivityCompat.requestPermissions(SelectionActivity.this,
@@ -44,16 +62,32 @@ public class SelectionActivity extends AppCompatActivity {
             }
         });
 
+
+
         metaofficeData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (isAccess(102)) {
+
+
                     if (db.getValueCount() > 1) {
-                        startActivity(new Intent(SelectionActivity.this, RegionActivity.class));
-                        finish();
+                        startActivity(new Intent(SelectionActivity.this, MainActivity.class));
                     } else {
-                        startActivity(new Intent(SelectionActivity.this, InitializeActivity.class));
-                        finish();
+                        if (ConnectionDetector.isConnectingToInternet(SelectionActivity.this)) {
+
+                            startActivity(new Intent(SelectionActivity.this, InitializeActivity.class));
+
+                        } else {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(SelectionActivity.this);
+                            builder.setMessage("Please connect to internet");
+                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                }
+                            });
+                            builder.show();
+                        }
                     }
                 } else {
                     ActivityCompat.requestPermissions(SelectionActivity.this,
@@ -64,6 +98,15 @@ public class SelectionActivity extends AppCompatActivity {
         });
 
 //        metaofficeData.performClick();
+
+        myProfile.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+
+            startActivity(new Intent(SelectionActivity.this,MyProfileActivity.class));
+
+        }
+    });
     }
 
     public boolean isAccess(int reqID) {
@@ -102,8 +145,22 @@ public class SelectionActivity extends AppCompatActivity {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         ) {
-                    startActivity(new Intent(SelectionActivity.this, MapActivity.class));
-                    finish();
+
+                    if (ConnectionDetector.isConnectingToInternet(SelectionActivity.this)) {
+                        startActivity(new Intent(SelectionActivity.this, MapActivity.class));
+                    } else {
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(SelectionActivity.this);
+                        builder.setMessage("Please connect to internet");
+                        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        });
+                        builder.show();
+
+                    }
                 }
                 return;
             case 102:
@@ -114,8 +171,26 @@ public class SelectionActivity extends AppCompatActivity {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED
                         ) {
-                    startActivity(new Intent(SelectionActivity.this, InitializeActivity.class));
-                    finish();
+
+                    if (db.getValueCount() > 1) {
+                        startActivity(new Intent(SelectionActivity.this, MainActivity.class));
+                    } else {
+                        if (ConnectionDetector.isConnectingToInternet(SelectionActivity.this)) {
+
+                            startActivity(new Intent(SelectionActivity.this, InitializeActivity.class));
+
+                        } else {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(SelectionActivity.this);
+                            builder.setMessage("Please connect to internet");
+                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                }
+                            });
+                            builder.show();
+                        }
+                    }
                 }
                 return;
 

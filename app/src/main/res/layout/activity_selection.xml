@@ -39,8 +39,19 @@
             android:textColor="@android:color/white"
             android:textStyle="bold"/>
 
-
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/myProfile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@color/colorPrimaryDark"
+            android:elevation="4dp"
+            android:text="My Profile"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"/>
 
     </LinearLayout>
+
+
 
 </android.support.constraint.ConstraintLayout>

@@ -241,7 +241,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     // Draw polyline on map
                     mapboxMap.addPolyline(new PolylineOptions()
                             .addAll(fieldsData.getPoints())
-                            .color(Color.parseColor("#FF4081"))
+                            .color(Color.parseColor("#08b4df"))
                             .width(2));
                 }
             }

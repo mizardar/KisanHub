@@ -9,6 +9,8 @@ public class StaticDataList {
     public static final String DATA_URL = "https://www.metoffice.gov.uk/climate/uk/summaries/datasets#yearOrdered";
     public static final String[] COUNTRY_LIST = new String[]{"UK","England","Wales","Scotland"};
     public static final String[] CATEGORY_LIST = new String[]{"Date Tmax","Date Tmin","Date Tmean","Date Sunshine","Date Rainfall"};
+
+
     public static final String[] KEY_LIST = new String[]{"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC","WIN","SPR","SUM","AUT","ANN"};
 
 

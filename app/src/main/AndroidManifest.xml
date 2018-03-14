@@ -25,14 +25,11 @@
         </activity>
         <activity android:name=".Activities.MapActivity" />
         <activity android:name=".Activities.InitializeActivity" />
-        <activity android:name=".Activities.SelectionActivity" />
         <activity
-            android:name=".Activities.RegionActivity"
+            android:name=".Activities.SelectionActivity"
             android:launchMode="singleTop" />
-        <activity
-            android:name=".CategoryActivity"
-            android:launchMode="singleTop" />
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".Activities.MainActivity" />
+        <activity android:name=".Activities.MyProfileActivity"></activity>
     </application>
 
 </manifest>

@@ -23,12 +23,13 @@ import org.jsoup.select.Elements;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import in.mizardar.kisanhubtest.DatabaseHandler;
 import in.mizardar.kisanhubtest.R;
 import in.mizardar.kisanhubtest.Utils.ConnectionDetector;
+import in.mizardar.kisanhubtest.Utils.DatabaseHandler;
 import in.mizardar.kisanhubtest.models.ModelCat;
 import in.mizardar.kisanhubtest.models.ModelLink;
 import in.mizardar.kisanhubtest.models.ModelRegion;
@@ -129,6 +130,7 @@ public class InitializeActivity extends AppCompatActivity {
             new ReadHTML().execute();
         } else {
             Toast.makeText(this, "Please connect to internet", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(InitializeActivity.this,SelectionActivity.class));
             finish();
         }
 
@@ -213,7 +215,7 @@ public class InitializeActivity extends AppCompatActivity {
 
         Log.e("parseDocument", "Completed");
 
-        startActivity(new Intent(InitializeActivity.this, RegionActivity.class));
+        startActivity(new Intent(InitializeActivity.this, MainActivity.class));
         finish();
 
 
@@ -302,12 +304,13 @@ public class InitializeActivity extends AppCompatActivity {
 
     }
 
-    private class ReadHTML extends AsyncTask<Void, Void, String> {
+    private class ReadHTML extends AsyncTask<Void, Void, Integer> {
 
 
         @Override
-        protected String doInBackground(Void... voids) {
+        protected Integer doInBackground(Void... voids) {
 
+            int resultCode = 200;
             try {
 
                 Document doc = Jsoup.connect(DATA_URL).get();
@@ -352,12 +355,31 @@ public class InitializeActivity extends AppCompatActivity {
 
                     }
                 }
+            } catch (SocketTimeoutException e) {
+                resultCode = 500;
+                e.printStackTrace();
+
             } catch (Exception e) {
+                resultCode = 405;
                 e.printStackTrace();
             }
 
 
-            return null;
+            return resultCode;
+        }
+
+
+        @Override
+        protected void onPostExecute(Integer result) {
+
+            if (result == 500) {
+                Toast.makeText(InitializeActivity.this, "Please connect to an active internet connection", Toast.LENGTH_SHORT).show();
+                finish();
+            } else if (result == 405) {
+                Toast.makeText(InitializeActivity.this, "Error Occured please relaunch the app ", Toast.LENGTH_SHORT).show();
+                finish();
+            }
         }
     }
 }
+

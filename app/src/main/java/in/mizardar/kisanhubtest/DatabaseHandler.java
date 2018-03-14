@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import in.mizardar.kisanhubtest.Utils.StaticDataList;
 import in.mizardar.kisanhubtest.models.ModelCat;
@@ -66,23 +67,23 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             + KEY_REGION_ID + " INTEGER ,"
             + KEY_CATEGORY_ID + " INTEGER ,"
             + KEY_YEAR + " INTEGER ,"
-            + KEY_JAN + " REAL ,"
-            + KEY_FEB + " REAL ,"
-            + KEY_MAR + " REAL ,"
-            + KEY_APR + " REAL ,"
-            + KEY_MAY + " REAL ,"
-            + KEY_JUN + " REAL ,"
-            + KEY_JUL + " REAL ,"
-            + KEY_AUG + " REAL ,"
-            + KEY_SEP + " REAL ,"
-            + KEY_OCT + " REAL ,"
-            + KEY_NOV + " REAL ,"
-            + KEY_DEC + " REAL ,"
-            + KEY_WIN + " REAL ,"
-            + KEY_SPR + " REAL ,"
-            + KEY_SUM + " REAL ,"
-            + KEY_AUT + " REAL ,"
-            + KEY_ANN + " REAL ,"
+            + KEY_JAN + " TEXT ,"
+            + KEY_FEB + " TEXT ,"
+            + KEY_MAR + " TEXT ,"
+            + KEY_APR + " TEXT ,"
+            + KEY_MAY + " TEXT ,"
+            + KEY_JUN + " TEXT ,"
+            + KEY_JUL + " TEXT ,"
+            + KEY_AUG + " TEXT ,"
+            + KEY_SEP + " TEXT ,"
+            + KEY_OCT + " TEXT ,"
+            + KEY_NOV + " TEXT ,"
+            + KEY_DEC + " TEXT ,"
+            + KEY_WIN + " TEXT ,"
+            + KEY_SPR + " TEXT ,"
+            + KEY_SUM + " TEXT ,"
+            + KEY_AUT + " TEXT ,"
+            + KEY_ANN + " TEXT ,"
             + "FOREIGN KEY(" + KEY_REGION_ID + ") REFERENCES "
             + TABLE_REGION + "(" + KEY_REGION_ID + ") , "
             + "FOREIGN KEY(" + KEY_CATEGORY_ID + ") REFERENCES "
@@ -126,7 +127,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void insertCategory() {
 
         SQLiteDatabase dataBase = this.getWritableDatabase();
-        for (String categoryName:StaticDataList.VALUE_LIST) {
+        for (String categoryName:StaticDataList.CATEGORY_LIST) {
             if (getCategoryCount(categoryName)==0) {
                 ContentValues cValues = new ContentValues();
                 cValues.put(KEY_CATEGORY_NAME, categoryName);
@@ -196,6 +197,21 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return count;
     }
 
+ public int getValueCount() {
+        SQLiteDatabase dataBase = this.getWritableDatabase();
+        //String sql = "select * from " + CATEGORY_TABLE;// + " ORDER BY " + Student_Percentage + " DESC";
+
+        Cursor cursor = dataBase.query(TABLE_VALUES,
+                new String[]{KEY_VALUES_ID},
+                null,
+                null, null, null, null, null
+        );
+
+        int count = cursor.getCount();
+        cursor.close();
+        return count;
+    }
+
     public int getRegionID(String regionName) {
         SQLiteDatabase dataBase = this.getWritableDatabase();
         //String sql = "select * from " + CATEGORY_TABLE;// + " ORDER BY " + Student_Percentage + " DESC";
@@ -241,8 +257,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
                 for (ModelValues modelValues:modelCat.getModelValues()){
                     ContentValues cValues = new ContentValues();
-                    cValues.put(KEY_REGION_ID, regionID);
-                    cValues.put(KEY_CATEGORY_ID,catID);
+                     cValues.put(KEY_REGION_ID, regionID);
+                     cValues.put(KEY_CATEGORY_ID,catID);
                      cValues.put(KEY_YEAR,modelValues.getYear());
                      cValues.put(KEY_JAN,modelValues.getValues()[0]);
                      cValues.put(KEY_FEB,modelValues.getValues()[1]);
@@ -266,11 +282,69 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 }
 
             }
-
-
         }
-
         dataBase.close();
-
     }
+
+    public HashMap<Integer, ModelValues> getValueList(int regionID,int catID) {
+        SQLiteDatabase dataBase = this.getWritableDatabase();
+        //String sql = "select * from " + CATEGORY_TABLE;// + " ORDER BY " + Student_Percentage + " DESC";
+        HashMap<Integer, ModelValues> modelValuesHashMap = new HashMap<>();
+
+
+        Cursor cursor = dataBase.query(TABLE_VALUES,
+                new String[]{KEY_REGION_ID,KEY_CATEGORY_ID,KEY_YEAR,KEY_JAN,
+                        KEY_FEB,KEY_MAR,KEY_APR,KEY_MAY,KEY_JUN,KEY_JUL,
+                        KEY_AUG,KEY_SEP,KEY_OCT,KEY_NOV,KEY_DEC,KEY_WIN,
+                        KEY_SPR,KEY_SUM,KEY_AUT,KEY_ANN},
+                KEY_REGION_ID+ "=" + regionID +" and "+KEY_CATEGORY_ID+"="+catID,
+                null, null, null, null, null
+        );
+
+        if (cursor.moveToFirst()) {
+            do {
+                ModelValues modelValues = new ModelValues();
+                String[] val = new String[17];
+                int year = cursor.getInt(cursor.getColumnIndex(KEY_YEAR));
+                modelValues.setRegionID(cursor.getInt(cursor.getColumnIndex(KEY_REGION_ID)));
+                modelValues.setCatID(cursor.getInt(cursor.getColumnIndex(KEY_CATEGORY_ID)));
+                modelValues.setYear(year);
+                for (int valueLoop = 0;valueLoop<17;valueLoop++){
+                    val[valueLoop] = cursor.getString(valueLoop+3);
+                }
+                modelValues.setValues(val);
+                modelValuesHashMap.put(year,modelValues);
+
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return modelValuesHashMap;
+    }
+
+    public int[] getFirstLastYear(int regionID,int catID) {
+        SQLiteDatabase dataBase = this.getWritableDatabase();
+        //String sql = "select * from " + CATEGORY_TABLE;// + " ORDER BY " + Student_Percentage + " DESC";
+        int[] FirstLastYear = new int[2];
+
+
+        Cursor cursor = dataBase.query(TABLE_VALUES,
+                new String[]{KEY_REGION_ID,KEY_CATEGORY_ID,KEY_YEAR,KEY_JAN,
+                        KEY_FEB,KEY_MAR,KEY_APR,KEY_MAY,KEY_JUN,KEY_JUL,
+                        KEY_AUG,KEY_SEP,KEY_OCT,KEY_NOV,KEY_DEC,KEY_WIN,
+                        KEY_SPR,KEY_SUM,KEY_AUT,KEY_ANN},
+                KEY_REGION_ID+ "=" + regionID +" and "+KEY_CATEGORY_ID+"="+catID,
+                null, null, null, null, null
+        );
+
+        cursor.moveToFirst();
+        int year1 = cursor.getInt(cursor.getColumnIndex(KEY_YEAR));
+        cursor.moveToLast();
+        int year2 = cursor.getInt(cursor.getColumnIndex(KEY_YEAR));
+        FirstLastYear[0] = year1;
+        FirstLastYear[1] = year2;
+
+        cursor.close();
+        return FirstLastYear;
+    }
+
 }

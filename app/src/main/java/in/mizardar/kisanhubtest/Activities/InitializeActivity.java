@@ -34,9 +34,9 @@ import in.mizardar.kisanhubtest.models.ModelLink;
 import in.mizardar.kisanhubtest.models.ModelRegion;
 import in.mizardar.kisanhubtest.models.ModelValues;
 
+import static in.mizardar.kisanhubtest.Utils.StaticDataList.CATEGORY_LIST;
 import static in.mizardar.kisanhubtest.Utils.StaticDataList.COUNTRY_LIST;
 import static in.mizardar.kisanhubtest.Utils.StaticDataList.DATA_URL;
-import static in.mizardar.kisanhubtest.Utils.StaticDataList.VALUE_LIST;
 import static in.mizardar.kisanhubtest.Utils.StaticDataList.hasCountryName;
 import static in.mizardar.kisanhubtest.Utils.StaticDataList.hasValName;
 
@@ -142,7 +142,7 @@ public class InitializeActivity extends AppCompatActivity {
 
         for (String countryName : COUNTRY_LIST) {
             ArrayList<ModelCat> modelCatArrayList = new ArrayList<>();
-            for (String valueName : VALUE_LIST) {
+            for (String valueName : CATEGORY_LIST) {
 
                 ModelLink modelLink = modelLinkHashMap.get(countryName + " " + valueName);
                 ArrayList<ModelValues> modelValuesArrayList = new ArrayList<>();
@@ -168,24 +168,24 @@ public class InitializeActivity extends AppCompatActivity {
                         while ((myLine = bufRead.readLine()) != null) {
 
                             lineNo++;
-                            if (lineNo == 8) {
-                                //TODO save the column names
-                            }
+//                            if (lineNo == 8) {
+//
+//                            }
                             if (lineNo > 8) {
                                 Log.e("parseDocument", "lineNo:" + lineNo + ": " + myLine);
 
                                 ArrayList<String> data = parse(myLine);
-                                double[] values = new double[17];
+                                String[] values = new String[17];
                                 int year = Integer.parseInt(data.get(0).trim());
 
                                 for (int valueLoop = 1; valueLoop <= 17; valueLoop++) {
                                     if (data.size() <= valueLoop) {
-                                        values[valueLoop - 1] = 0.0;
+                                        values[valueLoop - 1] = "NA";
                                     } else {
-                                        if (data.get(valueLoop).contains("--") || data.get(valueLoop).equalsIgnoreCase("NA")) {
-                                            values[valueLoop - 1] = 0.0;
+                                        if (data.get(valueLoop).contains("--")) {
+                                            values[valueLoop - 1] = "NA";
                                         } else {
-                                            values[valueLoop - 1] = Double.parseDouble(data.get(valueLoop).trim());
+                                            values[valueLoop - 1] = data.get(valueLoop).trim();
                                         }
 
                                     }
@@ -212,6 +212,11 @@ public class InitializeActivity extends AppCompatActivity {
         db.insertValues(modelRegionArrayList);
 
         Log.e("parseDocument", "Completed");
+
+        startActivity(new Intent(InitializeActivity.this, RegionActivity.class));
+        finish();
+
+
     }
 
     private ArrayList<String> parse(String line) {
@@ -321,7 +326,7 @@ public class InitializeActivity extends AppCompatActivity {
 //                new DownloadFileFromURL().execute();
 
                 for (String countryName : COUNTRY_LIST) {
-                    for (String valueName : VALUE_LIST) {
+                    for (String valueName : CATEGORY_LIST) {
 
                         ModelLink modelLink = modelLinkHashMap.get(countryName + " " + valueName);
 

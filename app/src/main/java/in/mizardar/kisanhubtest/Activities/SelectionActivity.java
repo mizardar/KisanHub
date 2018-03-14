@@ -11,15 +11,19 @@ import android.support.v7.widget.AppCompatButton;
 import android.util.Log;
 import android.view.View;
 
+import in.mizardar.kisanhubtest.DatabaseHandler;
 import in.mizardar.kisanhubtest.R;
 
 public class SelectionActivity extends AppCompatActivity {
+
+    DatabaseHandler db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selection);
 
+        db = new DatabaseHandler(this);
 
         AppCompatButton mapActivity = (AppCompatButton) findViewById(R.id.mapActivity);
         AppCompatButton metaofficeData = (AppCompatButton) findViewById(R.id.metaofficeData);
@@ -28,6 +32,7 @@ public class SelectionActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (isAccess(101)) {
+
                     startActivity(new Intent(SelectionActivity.this, MapActivity.class));
                     finish();
                 } else {
@@ -43,8 +48,13 @@ public class SelectionActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (isAccess(102)) {
-                    startActivity(new Intent(SelectionActivity.this, InitializeActivity.class));
-                    finish();
+                    if (db.getValueCount() > 1) {
+                        startActivity(new Intent(SelectionActivity.this, RegionActivity.class));
+                        finish();
+                    } else {
+                        startActivity(new Intent(SelectionActivity.this, InitializeActivity.class));
+                        finish();
+                    }
                 } else {
                     ActivityCompat.requestPermissions(SelectionActivity.this,
                             new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
@@ -53,7 +63,7 @@ public class SelectionActivity extends AppCompatActivity {
             }
         });
 
-        metaofficeData.performClick();
+//        metaofficeData.performClick();
     }
 
     public boolean isAccess(int reqID) {

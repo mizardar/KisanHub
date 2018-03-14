@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/KisanHubTest.iml" filepath="$PROJECT_DIR$/KisanHubTest.iml" />
+      <module fileurl="file://D:\examples\TestPeoj\KisanHubTest.iml" filepath="D:\examples\TestPeoj\KisanHubTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/TestPeoj.iml" filepath="$PROJECT_DIR$/TestPeoj.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
